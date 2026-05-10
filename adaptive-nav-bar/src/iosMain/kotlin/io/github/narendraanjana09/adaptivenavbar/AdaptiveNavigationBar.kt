@@ -53,10 +53,7 @@ actual fun AdaptiveNavigationBar(
             selectedIndex = selectedIndex,
             colors = colors,
             onItemSelected = onItemSelected,
-            onIosFabClick = {
-                onIosFabClick()
-                println("On Fab Click")
-            }
+            onIosFabClick = onIosFabClick
         )
     } else {
         Column(
