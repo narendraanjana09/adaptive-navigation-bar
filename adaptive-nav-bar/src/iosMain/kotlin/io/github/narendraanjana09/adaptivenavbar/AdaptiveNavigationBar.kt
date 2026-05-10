@@ -20,7 +20,6 @@ import kotlinx.cinterop.cstr
 import kotlinx.cinterop.useContents
 import org.jetbrains.compose.resources.painterResource
 import platform.CoreGraphics.CGRectMake
-import platform.CoreGraphics.CGSizeMake
 import platform.Foundation.NSProcessInfo
 import platform.Foundation.NSSelectorFromString
 import platform.QuartzCore.kCACornerCurveContinuous
@@ -54,7 +53,10 @@ actual fun AdaptiveNavigationBar(
             selectedIndex = selectedIndex,
             colors = colors,
             onItemSelected = onItemSelected,
-            onIosFabClick = onIosFabClick
+            onIosFabClick = {
+                onIosFabClick()
+                println("On Fab Click")
+            }
         )
     } else {
         Column(
@@ -285,8 +287,28 @@ private fun IosNavBarVersion26(
 
             iosFab?.let {
 
-                val fabButton =
-                    UIButton.buttonWithType(UIButtonTypeSystem) as UIButton
+                // ── Glass container so tab bar + FAB blend at their edges ──────────
+                val glassContainer = UIVisualEffectView(
+                    effect = UIGlassContainerEffect()
+                ).apply {
+                    backgroundColor = UIColor.clearColor
+                    clipsToBounds = false
+                    layer.masksToBounds = false
+                    setFrame(CGRectMake(fabX, fabY, fabSize, fabSize))
+                    userInteractionEnabled = true
+                }
+                rootView.addSubview(glassContainer)
+                val glassEffect = UIGlassEffect().apply {
+                    tintColor = iosFab.containerColor.toUIColor().colorWithAlphaComponent(0.72)
+                    interactive = true
+                }
+
+                val fabEffectView = UIVisualEffectView(effect = glassEffect).apply {
+                    setFrame(CGRectMake(0.0, 0.0, fabSize, fabSize))  // relative to glassContainer
+                    layer.cornerRadius = fabSize / 2.0
+                    layer.cornerCurve = kCACornerCurveContinuous
+                    clipsToBounds = true
+                }
 
                 val fabIcon =
                     (
@@ -296,38 +318,22 @@ private fun IosNavBarVersion26(
                             UIImageRenderingMode.UIImageRenderingModeAlwaysTemplate
                         )
 
-                fabButton.setImage(fabIcon, forState = UIControlStateNormal)
-                fabButton.setFrame(
-                    CGRectMake(
-                        x = fabX,
-                        y = fabY,
-                        width = fabSize,
-                        height = fabSize
-                    )
-                )
+                val iconView = UIImageView(image = fabIcon).apply {
+                    tintColor = iosFab.contentColor.toUIColor()
+                    contentMode = UIViewContentMode.UIViewContentModeScaleAspectFit
+                    val iconSize = 24.0
+                    val inset = (fabSize - iconSize) / 2.0
+                    setFrame(CGRectMake(inset, inset, iconSize, iconSize))
+                }
+                fabEffectView.contentView.addSubview(iconView)
 
-                fabButton.backgroundColor = iosFab.containerColor.toUIColor()
-                fabButton.tintColor = iosFab.contentColor.toUIColor()
-                fabButton.accessibilityLabel = iosFab.contentDescription
-
-                fabButton.layer.cornerRadius = fabSize / 2.0
-                fabButton.layer.cornerCurve = kCACornerCurveContinuous
-
-                fabButton.layer.shadowColor =
-                    colors.selectedIconColor.toUIColor().CGColor
-                fabButton.layer.shadowOpacity = 0.16f
-                fabButton.layer.shadowRadius = 14.0
-                fabButton.layer.shadowOffset = CGSizeMake(0.0, 6.0)
-
-                fabButton.layer.borderWidth = 1.0
-                fabButton.layer.borderColor =
-                    UIColor.whiteColor.colorWithAlphaComponent(0.12).CGColor
-
-                fabButton.clipsToBounds = false
-                fabButton.layer.masksToBounds = false
+                val tapButton = UIButton.buttonWithType(UIButtonTypeSystem) as UIButton
+                tapButton.setFrame(CGRectMake(0.0, 0.0, fabSize, fabSize))
+                tapButton.backgroundColor = UIColor.clearColor
+                tapButton.accessibilityLabel = iosFab.contentDescription
 
                 val fabHandler = FabHandler(onIosFabClick)
-                fabButton.addTarget(
+                tapButton.addTarget(
                     fabHandler,
                     NSSelectorFromString("onFabTap"),
                     UIControlEventTouchUpInside
@@ -338,7 +344,9 @@ private fun IosNavBarVersion26(
                     fabHandler,
                     OBJC_ASSOCIATION_RETAIN_NONATOMIC
                 )
-                rootView.addSubview(fabButton)
+
+                fabEffectView.contentView.addSubview(tapButton)
+                glassContainer.contentView.addSubview(fabEffectView)
             }
             rootView
         },

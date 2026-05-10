@@ -58,10 +58,7 @@ private val config = SavedStateConfiguration {
 
 private val allNavItems = listOf(
     Triple("Overview", "rectangle.grid.3x1", "rectangle.grid.3x1.fill"),
-    Triple("Transactions", "clock", "clock.fill"),
-    Triple("Overview", "rectangle.grid.3x1", "rectangle.grid.3x1.fill"),
-//    Triple("Transactions", "clock", "clock.fill"),
-//    Triple("Overview", "rectangle.grid.3x1", "rectangle.grid.3x1.fill"),
+    Triple("Transactions", "clock", "clock.fill")
 )
 
 @Composable
@@ -124,9 +121,6 @@ fun ScaffoldSample() {
                     }
                 },
                 onIosFabClick = { },
-                colors = AdaptiveNavigationBarDefaults.colors(
-                    selectedTextColor = Color.White
-                )
             )
         },
     ) { innerPadding ->
