@@ -1,10 +1,16 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
-    alias(libs.plugins.androidLint)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.vanniktech.mavenPublish)
+    signing
 }
+
+group = "io.github.narendraanjana09"
+version = "1.0.1"
 
 kotlin {
 
@@ -16,24 +22,18 @@ kotlin {
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
-        withHostTestBuilder {
-        }
+        withHostTestBuilder {}.configure {}
 
-        withDeviceTestBuilder {
-            sourceSetTreeName = "test"
-        }.configure {
-            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        compilations.configureEach {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_11)
+                }
+            }
         }
     }
 
-    // For iOS targets, this is also where you should
-    // configure native binary output. For more information, see:
-    // https://kotlinlang.org/docs/multiplatform-build-native-binaries.html#build-xcframeworks
-
-    // A step-by-step guide on how to include this library in an XCode
-    // project can be found here:
-    // https://developer.android.com/kotlin/multiplatform/migrate
-    val xcfName = "adaptive-nav-barKit"
+    val xcfName = "adaptiveNavBarKit"
 
     iosX64 {
         binaries.framework {
@@ -61,7 +61,6 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlin.stdlib)
                 implementation(libs.compose.runtime)
                 implementation(libs.compose.foundation)
                 implementation(libs.compose.material3)
@@ -81,15 +80,6 @@ kotlin {
         androidMain {
             dependencies {
                 implementation(libs.compose.uiToolingPreview)
-                implementation(libs.androidx.activity.compose)
-            }
-        }
-
-        getByName("androidDeviceTest") {
-            dependencies {
-                implementation(libs.androidx.runner)
-                implementation(libs.androidx.core)
-                implementation(libs.androidx.junit)
             }
         }
 
@@ -103,5 +93,44 @@ kotlin {
             }
         }
     }
+}
 
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+
+    coordinates(group.toString(), "adaptive-nav-bar", version.toString())
+    pom {
+        name = "Adaptive NavBar"
+        description =
+            "A Compose Multiplatform adaptive navigation bar — M3 on Android, glassy FAB style on iOS."
+        url = "https://github.com/narendraanjana09/adaptive-navigation-bar"
+        inceptionYear = "2026"
+
+        licenses {
+            license {
+                name = "Apache-2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0"
+                distribution = "repo"
+            }
+        }
+        developers {
+            developer {
+                id = "narendraanjana09"
+                name = "Narendra Singh Anjana"
+                url = "https://github.com/narendraanjana09"
+            }
+        }
+        scm {
+            url = "https://github.com/narendraanjana09/adaptive-navigation-bar"
+            connection = "scm:git:git://github.com/narendraanjana09/adaptive-navigation-bar.git"
+            developerConnection = "scm:git:ssh://git@github.com/narendraanjana09/adaptive-navigation-bar.git"
+        }
+    }
+}
+
+signing {
+    setRequired {
+        !gradle.taskGraph.allTasks.any { it is PublishToMavenLocal }
+    }
 }

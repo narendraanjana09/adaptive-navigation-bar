@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitInteropInteractionMode
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
+import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.cstr
@@ -324,7 +325,7 @@ private fun IosNavBarVersion26(
                 }
                 fabEffectView.contentView.addSubview(iconView)
 
-                val tapButton = UIButton.buttonWithType(UIButtonTypeSystem) as UIButton
+                val tapButton = UIButton.buttonWithType(UIButtonTypeSystem)
                 tapButton.setFrame(CGRectMake(0.0, 0.0, fabSize, fabSize))
                 tapButton.backgroundColor = UIColor.clearColor
                 tapButton.accessibilityLabel = iosFab.contentDescription
@@ -362,6 +363,7 @@ private fun IosNavBarVersion26(
 }
 
 private class FabHandler(val onClick: () -> Unit) : NSObject() {
+    @OptIn(BetaInteropApi::class)
     @ObjCAction
     fun onFabTap() {
         onClick()
