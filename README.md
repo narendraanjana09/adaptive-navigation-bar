@@ -4,7 +4,8 @@
 
 A Compose Multiplatform library that renders a platform-native navigation bar — Material 3 `NavigationBar` on Android, and a glassy floating bar with an optional FAB on iOS.
 
-https://github.com/user-attachments/assets/833747cf-6e00-4f80-9e47-204a93aeb681
+<img width="1114" height="236" alt="Screenshot 2026-05-12 at 10 49 15 AM" src="https://github.com/user-attachments/assets/693bb85d-0bd8-496b-94b6-bf461809ae86" />
+
 ---
 
 ## Installation
