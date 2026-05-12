@@ -2,9 +2,9 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.narendraanjana09/adaptive-nav-bar.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.narendraanjana09/adaptive-nav-bar)
 
-
 A Compose Multiplatform library that renders a platform-native navigation bar — Material 3 `NavigationBar` on Android, and a glassy floating bar with an optional FAB on iOS.
 
+https://github.com/user-attachments/assets/833747cf-6e00-4f80-9e47-204a93aeb681
 ---
 
 ## Installation
